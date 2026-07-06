@@ -1,3 +1,10 @@
 # dependencies
 .pnpm-store/
 pnpm-lock.yaml
+
+# build output
+.expo/
+dist/
+
+# migrations
+drizzle/

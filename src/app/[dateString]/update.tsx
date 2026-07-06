@@ -1,7 +1,13 @@
+import { useMonth } from "@/components/date-provider";
 import { Button } from "@/components/ui/button";
+import { db } from "@/db";
+import { expenses, payments } from "@/db/schema";
+import { defaultTimeZone } from "@/i18n";
 import { moneyFormatter } from "@/lib/formatter";
+import { and, eq, gte, lt } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Checkbox } from "expo-checkbox";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +16,7 @@ import CurrencyInput from "react-native-currency-input";
 import { RadioGroup } from "react-native-radio-buttons-group";
 
 export default function Update() {
+  const month = useMonth();
   const { t } = useTranslation();
   const { expenseId: expenseIdAsString } = useLocalSearchParams<{
     expenseId?: string;
@@ -28,20 +35,138 @@ export default function Update() {
   const [isInstallments, setIsInInstallments] = useState(false);
   const installmentCountRef = useRef<TextInput>(null);
 
+  const {
+    data: [expense],
+    error: expenseError,
+  } = useLiveQuery(
+    db
+      .select()
+      .from(expenses)
+      .where(expenseId ? eq(expenses.id, expenseId) : undefined)
+      .limit(1),
+    [expenseId],
+  );
+
+  const rangeStart = month.asMonth
+    .toPlainDate({ day: 1 })
+    .toZonedDateTime(defaultTimeZone);
+  const rangeEnd = month.asMonth
+    .add({ months: 1 })
+    .toPlainDate({ day: 1 })
+    .toZonedDateTime(defaultTimeZone);
+
+  const {
+    data: [payment],
+    error: paymentError,
+  } = useLiveQuery(
+    db
+      .select()
+      .from(payments)
+      .where(
+        expenseId
+          ? and(
+              eq(payments.expenseId, expenseId),
+              gte(payments.paidAt, new Date(rangeStart.epochMilliseconds)),
+              lt(payments.paidAt, new Date(rangeEnd.epochMilliseconds)),
+            )
+          : undefined,
+      )
+      .limit(1),
+    [expenseId],
+  );
+
+  async function create(paid: boolean) {
+    let endDate: Date | undefined;
+    if (isInstallments) {
+      const nodeValue = installmentCountRef.current?.nodeValue;
+      const installmentCount = nodeValue ? Number.parseInt(nodeValue) : 1;
+
+      const nextMonthInstant = month.asMonth
+        .add({ months: installmentCount })
+        .toPlainDate({ day: 1 })
+        .toZonedDateTime(defaultTimeZone);
+      endDate = new Date(nextMonthInstant.epochMilliseconds);
+    }
+
+    const { lastInsertRowId } = await db.insert(expenses).values({
+      description: descriptionRef.current?.nodeValue ?? "-",
+      value: value ?? 0,
+      endDate,
+    });
+
+    if (paid) {
+      await db.insert(payments).values({
+        expenseId: lastInsertRowId,
+        paidAt: new Date(),
+        value: value ?? 0,
+      });
+    }
+
+    router.back();
+  }
+
+  async function update(paid?: boolean) {
+    let endDate: Date | null | undefined;
+    if (isRepeated) {
+      if (isInstallments) {
+        const currentInstallmentCount = calculateInstallmentCount(
+          expense.startDate,
+          expense.endDate ?? expense.startDate,
+        );
+
+        const nodeValue = installmentCountRef.current?.nodeValue;
+        const installmentCount = nodeValue
+          ? Number.parseInt(nodeValue)
+          : currentInstallmentCount;
+
+        if (installmentCount !== currentInstallmentCount) {
+          const currentEndDate = (
+            expense.endDate ?? expense.startDate
+          ).toTemporalInstant();
+          const newEndDate = currentEndDate.add({
+            months: currentInstallmentCount - installmentCount,
+          });
+
+          endDate = new Date(newEndDate.epochMilliseconds);
+        }
+      } else endDate = null;
+
+      await db.update(expenses).set({
+        value: value ?? undefined,
+        description: descriptionRef.current?.nodeValue ?? undefined,
+        endDate,
+      });
+      router.back();
+    }
+  }
+
+  async function remove() {
+    await db.delete(payments).where(eq(payments.expenseId, expenseId!));
+    await db.delete(expenses).where(eq(expenses.id, expenseId!));
+    router.back();
+  }
+
+  if (expenseError) return <QueryError error={expenseError} />;
+  if (paymentError) return <QueryError error={paymentError} />;
+
   return (
     <View className="flex h-full justify-between p-8">
       <View className="flex gap-4">
         <View>
-          <Text>{t("update.description")}</Text>
+          <Text className="text-black dark:text-white">
+            {t("update.description")}
+          </Text>
           <TextInput
             ref={descriptionRef}
             placeholder={t("update.descriptionPlaceholder")}
-            className="placeholder-text-gray-400 border-b border-b-black text-black dark:border-b-white dark:text-white"
+            className="border-b border-b-black text-black placeholder:text-gray-400 dark:border-b-white dark:text-white"
           />
         </View>
 
         <View>
-          <Text>{t("update.value")}</Text>
+          <Text className="text-black dark:text-white">
+            {t("update.value")}
+          </Text>
           <CurrencyInput
             value={value}
             onChangeValue={setValue}
@@ -57,7 +182,9 @@ export default function Update() {
 
         <View className="flex-row gap-2">
           <Checkbox value={isRepeated} onValueChange={setIsRepeated} />
-          <Text>{t("update.repeated")}</Text>
+          <Text className="text-black dark:text-white">
+            {t("update.repeated")}
+          </Text>
         </View>
 
         {isRepeated && (
@@ -67,12 +194,22 @@ export default function Update() {
               {
                 id: "fixed",
                 value: "fixed",
-                label: t("update.fixed"),
+                containerStyle: { gap: 8 },
+                label: (
+                  <Text className="text-black dark:text-white">
+                    {t("update.fixed")}
+                  </Text>
+                ),
               },
               {
                 id: "installments",
                 value: "installments",
-                label: t("update.installments"),
+                containerStyle: { gap: 8 },
+                label: (
+                  <Text className="text-black dark:text-white">
+                    {t("update.installments")}
+                  </Text>
+                ),
               },
             ]}
             selectedId={isInstallments ? "installments" : "fixed"}
@@ -82,33 +219,71 @@ export default function Update() {
 
         {isRepeated && isInstallments && (
           <View>
-            <Text>{t("update.installmentCount")}</Text>
+            <Text className="text-black dark:text-white">
+              {t("update.installmentCount")}
+            </Text>
             <TextInput
               keyboardType="number-pad"
               ref={installmentCountRef}
-              placeholder="0"
-              className="placeholder-text-gray-400 border-b border-b-black text-black dark:border-b-white dark:text-white"
+              placeholder="1"
+              className="border-b border-b-black text-black placeholder:text-gray-400 dark:border-b-white dark:text-white"
             />
           </View>
         )}
       </View>
       <View className="flex gap-4">
-        <Button>
+        <Button
+          onPress={async () => {
+            if (expenseId) await update();
+            else await create(false);
+          }}
+        >
           <Text className="text-center text-black uppercase dark:text-white">
             {expenseId ? t("update.update") : t("update.add")}
           </Text>
         </Button>
-        <Button className="will-change-variable" variant="primary">
+        <Button
+          onPress={async () => {
+            if (expenseId) await update(true);
+            else await create(true);
+          }}
+          className="will-change-variable"
+          variant={payment ? "warning" : "primary"}
+        >
           <Text className="text-center text-black uppercase dark:text-white">
-            {t("update.paid")}
+            {payment ? t("update.unpaid") : t("update.paid")}
           </Text>
         </Button>
-        <Button variant="destructive">
+        <Button
+          variant="destructive"
+          onPress={async () => {
+            if (expenseId) await remove();
+            else router.back();
+          }}
+        >
           <Text className="text-center text-black uppercase dark:text-white">
             {t("update.remove")}
           </Text>
         </Button>
       </View>
+    </View>
+  );
+}
+
+function calculateInstallmentCount(startDate: Date, endDate: Date) {
+  const start = startDate.toTemporalInstant();
+  const end = endDate.toTemporalInstant();
+
+  return start.until(end).months;
+}
+
+function QueryError({ error }: { error: Error }) {
+  return (
+    <View className="flex items-center justify-center gap-4 p-8">
+      <Text className="text-2xl font-black text-black dark:text-white">
+        An error occurred:
+      </Text>
+      <Text className="text-black dark:text-white">{error.message}</Text>
     </View>
   );
 }

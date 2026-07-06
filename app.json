@@ -7,10 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "spendings",
     "userInterfaceStyle": "automatic",
-    "platforms": [
-      "android",
-      "ios"
-    ],
+    "platforms": ["android", "ios"],
     "ios": {
       "icon": "./assets/expenstack.icon"
     },
@@ -33,11 +30,13 @@
           "imageWidth": 76
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": true,
+      "tsconfigPaths": true
     },
     "extra": {
       "router": {},

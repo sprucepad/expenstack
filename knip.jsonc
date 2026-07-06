@@ -1,4 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
   "tags": ["-lintignore"],
+
+  "babel": true,
+  "ignoreDependencies": [
+    // Expo provides this
+    "babel-preset-expo",
+  ],
 }

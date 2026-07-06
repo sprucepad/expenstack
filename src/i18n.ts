@@ -30,4 +30,5 @@ declare module "i18next" {
   }
 }
 
+/** @lintignore */
 export default i18n;

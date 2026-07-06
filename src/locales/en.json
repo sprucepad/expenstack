@@ -1,5 +1,18 @@
 {
   "main": {
-    "title": "Despesas"
+    "title": "Expenses"
+  },
+  "graphs": {
+    "title": "Graphs"
+  },
+  "update": {
+    "title": "Details",
+    "tabBar": "Add",
+
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "add": "Add",
+    "update": "Update",
+    "remove": "Remove"
   }
 }

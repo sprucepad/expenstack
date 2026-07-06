@@ -1,5 +1,18 @@
 {
   "main": {
     "title": "Despesas"
+  },
+  "graphs": {
+    "title": "Gráficos"
+  },
+  "update": {
+    "title": "Detalhamento",
+    "tabBar": "Adicionar",
+
+    "paid": "Pago",
+    "unpaid": "Não Pago",
+    "add": "Adicionar",
+    "update": "Atualizar",
+    "remove": "Remover"
   }
 }

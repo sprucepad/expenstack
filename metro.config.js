@@ -7,4 +7,4 @@ const config = getDefaultConfig(__dirname);
 
 config.resolver.sourceExts.push("sql");
 
-module.exports = withNativewind(config);
+module.exports = withNativewind(config, { inlineRem: 16 });

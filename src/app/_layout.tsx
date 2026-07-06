@@ -2,6 +2,7 @@ import { db } from "@/db/index";
 import "@/global.css";
 import "@/i18n";
 import migrations from "@drizzle/migrations";
+import { PortalHost } from "@rn-primitives/portal";
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -46,6 +47,7 @@ export default function RootLayout() {
           options={{ title: t("main.title") }}
         />
       </Stack>
+      <PortalHost />
     </ThemeProvider>
   );
 }

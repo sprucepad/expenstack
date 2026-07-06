@@ -1,18 +1,12 @@
-import { useLocalSearchParams } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useMonth } from "@/components/date-provider";
 import { Text, View } from "react-native";
 
 export default function ExpenseListScreen() {
-  const { dateString } = useLocalSearchParams();
-
-  useEffect(() => {
-    SplashScreen.hideAsync();
-  }, []);
+  const month = useMonth();
 
   return (
     <View>
-      <Text className="text-white">{dateString}</Text>
+      <Text className="text-white">{month.asString}</Text>
     </View>
   );
 }

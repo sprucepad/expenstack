@@ -13,6 +13,14 @@
     "unpaid": "Não Pago",
     "add": "Adicionar",
     "update": "Atualizar",
-    "remove": "Remover"
+    "remove": "Remover",
+
+    "description": "Descrição",
+    "descriptionPlaceholder": "Compras do mês",
+    "value": "Valor",
+    "repeated": "Repetido",
+    "fixed": "Fixo",
+    "installments": "Parcelado",
+    "installmentCount": "Número de parcelas"
   }
 }

@@ -13,6 +13,14 @@
     "unpaid": "Unpaid",
     "add": "Add",
     "update": "Update",
-    "remove": "Remove"
+    "remove": "Remove",
+
+    "description": "Description",
+    "descriptionPlaceholder": "Monthly groceries",
+    "value": "Value",
+    "repeated": "Repeated",
+    "fixed": "Fixed",
+    "installments": "Installments",
+    "installmentCount": "Installment count"
   }
 }

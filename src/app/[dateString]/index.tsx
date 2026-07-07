@@ -8,6 +8,7 @@ import { calculateInstallmentCount } from "@/lib/installments";
 import { cn } from "@/lib/utils";
 import { and, gte, isNull, lt, or } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { Link } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { ScrollView, Text, View } from "react-native";
 
@@ -56,38 +57,45 @@ export default function ExpenseListScreen() {
     <View>
       <ScrollView>
         {expensesList.map((expense) => (
-          <View
+          <Link
+            href={{
+              pathname: "/[dateString]/[expenseId]",
+              params: { dateString: month.asString, expenseId: expense.id },
+            }}
             key={expense.id}
-            className={cn(
-              "will-change-variable flex w-full flex-row justify-between border-b border-gray-400 p-4",
-              expense.payments.length && "bg-green-200 dark:bg-green-600",
-            )}
           >
-            <View>
-              <Text className="text-xl font-black text-black dark:text-white">
-                {expense.description}
-              </Text>
-              <Text className="text-black dark:text-white">
-                {expense.startDate.toLocaleDateString(defaultLocaleCode)}{" "}
-                {expense.endDate != null &&
-                  expense.endDate !== expense.startDate && (
-                    <>
-                      &bull;{" "}
-                      <Installments
-                        currentDate={rangeEndDate}
-                        startDate={expense.startDate}
-                        endDate={expense.endDate}
-                      />
-                    </>
-                  )}
-              </Text>
+            <View
+              className={cn(
+                "will-change-variable flex w-full flex-row justify-between border-b border-gray-400 p-4",
+                expense.payments.length && "bg-green-200 dark:bg-green-600",
+              )}
+            >
+              <View>
+                <Text className="text-xl font-black text-black dark:text-white">
+                  {expense.description}
+                </Text>
+                <Text className="text-black dark:text-white">
+                  {expense.startDate.toLocaleDateString(defaultLocaleCode)}{" "}
+                  {expense.endDate != null &&
+                    expense.endDate !== expense.startDate && (
+                      <>
+                        &bull;{" "}
+                        <Installments
+                          currentDate={rangeEndDate}
+                          startDate={expense.startDate}
+                          endDate={expense.endDate}
+                        />
+                      </>
+                    )}
+                </Text>
+              </View>
+              <View>
+                <Text className="text-xl font-black text-black dark:text-white">
+                  {moneyFormatter.format(expense.value)}
+                </Text>
+              </View>
             </View>
-            <View>
-              <Text className="text-xl font-black text-black dark:text-white">
-                {moneyFormatter.format(expense.value)}
-              </Text>
-            </View>
-          </View>
+          </Link>
         ))}
       </ScrollView>
       <Total expensesData={expensesData} paymentsData={paymentsData} />

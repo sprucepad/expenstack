@@ -12,7 +12,7 @@ export default function DateLayout() {
           <NativeTabs.Trigger.Icon sf="house.fill" md="home" />
           <NativeTabs.Trigger.Label>{t("main.title")}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
-        <NativeTabs.Trigger name="update">
+        <NativeTabs.Trigger name="(update)/add">
           <NativeTabs.Trigger.Icon sf="plus.circle.fill" md="add" />
           <NativeTabs.Trigger.Label>
             {t("update.tabBar")}

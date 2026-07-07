@@ -1,6 +1,8 @@
 {
   "main": {
-    "title": "Despesas"
+    "title": "Despesas",
+    "total": "Total",
+    "unpaid": "A pagar"
   },
   "graphs": {
     "title": "Gráficos"

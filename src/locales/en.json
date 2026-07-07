@@ -1,6 +1,8 @@
 {
   "main": {
-    "title": "Expenses"
+    "title": "Expenses",
+    "total": "Total",
+    "unpaid": "Unpaid"
   },
   "graphs": {
     "title": "Graphs"

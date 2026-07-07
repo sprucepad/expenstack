@@ -11,7 +11,7 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Checkbox } from "expo-checkbox";
 import { router, useLocalSearchParams } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Text, TextInput, View } from "react-native";
 import CurrencyInput from "react-native-currency-input";
@@ -30,12 +30,6 @@ export default function Update() {
   useEffect(() => {
     SplashScreen.hideAsync();
   }, []);
-
-  const descriptionRef = useRef<TextInput>(null);
-  const [value, setValue] = useState<number | null>(null);
-  const [isRepeated, setIsRepeated] = useState(false);
-  const [isInstallments, setIsInInstallments] = useState(false);
-  const installmentCountRef = useRef<TextInput>(null);
 
   const {
     data: [expense],
@@ -77,11 +71,33 @@ export default function Update() {
     [expenseId],
   );
 
+  const [description, setDescription] = useState(expense?.description || "");
+  const [value, setValue] = useState<number | null>(expense?.value ?? null);
+  const [isRepeated, setIsRepeated] = useState(
+    (expense?.endDate == null || expense?.endDate !== expense?.startDate) ??
+      false,
+  );
+  const [isInstallments, setIsInInstallments] = useState(
+    (expense?.endDate != null && expense?.endDate !== expense?.startDate) ??
+      false,
+  );
+  const [installmentCountString, setInstallmentCountString] = useState(
+    expense
+      ? String(
+          calculateInstallmentCount(
+            expense.startDate,
+            expense.endDate ?? expense.startDate,
+          ),
+        )
+      : "",
+  );
+
   async function create(paid: boolean) {
     let endDate: Date | undefined = new Date();
     if (isInstallments) {
-      const nodeValue = installmentCountRef.current?.nodeValue;
-      const installmentCount = nodeValue ? Number.parseInt(nodeValue) : 1;
+      const installmentCount = installmentCountString
+        ? Number.parseInt(installmentCountString)
+        : 1;
 
       const nextMonthInstant = month.asMonth
         .add({ months: installmentCount })
@@ -91,7 +107,7 @@ export default function Update() {
     } else if (isRepeated) endDate = undefined;
 
     const { lastInsertRowId } = await db.insert(expenses).values({
-      description: descriptionRef.current?.nodeValue ?? "-",
+      description: description || "-",
       value: value ?? 0,
       endDate,
     });
@@ -108,6 +124,8 @@ export default function Update() {
   }
 
   async function update(paid?: boolean) {
+    if (!expense) return;
+
     let endDate: Date | null | undefined;
     if (isRepeated) {
       if (isInstallments) {
@@ -116,9 +134,8 @@ export default function Update() {
           expense.endDate ?? expense.startDate,
         );
 
-        const nodeValue = installmentCountRef.current?.nodeValue;
-        const installmentCount = nodeValue
-          ? Number.parseInt(nodeValue)
+        const installmentCount = installmentCountString
+          ? Number.parseInt(installmentCountString)
           : currentInstallmentCount;
 
         if (installmentCount !== currentInstallmentCount) {
@@ -137,7 +154,7 @@ export default function Update() {
         .update(expenses)
         .set({
           value: value ?? undefined,
-          description: descriptionRef.current?.nodeValue ?? undefined,
+          description: description || undefined,
           endDate,
         })
         .where(eq(expenses.id, expense.id));
@@ -158,6 +175,7 @@ export default function Update() {
   }
 
   async function remove() {
+    if (!expense) return;
     await db.delete(payments).where(eq(payments.expenseId, expense.id));
     await db.delete(expenses).where(eq(expenses.id, expense.id));
     router.back();
@@ -174,9 +192,10 @@ export default function Update() {
             {t("update.description")}
           </Text>
           <TextInput
-            ref={descriptionRef}
             placeholder={t("update.descriptionPlaceholder")}
             className="border-b border-b-black text-black placeholder:text-gray-400 dark:border-b-white dark:text-white"
+            value={description}
+            onChangeText={setDescription}
           />
         </View>
 
@@ -241,9 +260,10 @@ export default function Update() {
             </Text>
             <TextInput
               keyboardType="number-pad"
-              ref={installmentCountRef}
               placeholder="1"
               className="border-b border-b-black text-black placeholder:text-gray-400 dark:border-b-white dark:text-white"
+              value={installmentCountString}
+              onChangeText={setInstallmentCountString}
             />
           </View>
         )}

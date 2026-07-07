@@ -3,10 +3,12 @@ import { QueryError } from "@/components/query-error";
 import { db } from "@/db";
 import { expenses, payments } from "@/db/schema";
 import { defaultLocaleCode, defaultTimeZone } from "@/i18n";
+import { moneyFormatter } from "@/lib/formatter";
 import { calculateInstallmentCount } from "@/lib/installments";
 import { cn } from "@/lib/utils";
 import { and, gte, isNull, lt, or } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useTranslation } from "react-i18next";
 import { ScrollView, Text, View } from "react-native";
 
 export default function ExpenseListScreen() {
@@ -51,33 +53,45 @@ export default function ExpenseListScreen() {
   const expensesList = mergeExpensesAndPayments(expensesData, paymentsData);
 
   return (
-    <ScrollView>
-      {expensesList.map((expense) => (
-        <View
-          key={expense.id}
-          className={cn(
-            "flex w-full flex-row justify-between border-b border-gray-400 p-4",
-            expense.payments.length && "bg-green-200 dark:bg-green-600",
-          )}
-        >
-          <View>
-            <Text>{expense.description}</Text>
-            <Text>
-              {expense.startDate.toLocaleDateString(defaultLocaleCode)} &bull;{" "}
-              {expense.endDate != null &&
-                expense.endDate !== expense.startDate && (
-                  <Installments
-                    currentDate={rangeEndDate}
-                    startDate={expense.startDate}
-                    endDate={expense.endDate}
-                  />
-                )}
-            </Text>
+    <View>
+      <ScrollView>
+        {expensesList.map((expense) => (
+          <View
+            key={expense.id}
+            className={cn(
+              "will-change-variable flex w-full flex-row justify-between border-b border-gray-400 p-4",
+              expense.payments.length && "bg-green-200 dark:bg-green-600",
+            )}
+          >
+            <View>
+              <Text className="text-xl font-black text-black dark:text-white">
+                {expense.description}
+              </Text>
+              <Text className="text-black dark:text-white">
+                {expense.startDate.toLocaleDateString(defaultLocaleCode)}{" "}
+                {expense.endDate != null &&
+                  expense.endDate !== expense.startDate && (
+                    <>
+                      &bull;{" "}
+                      <Installments
+                        currentDate={rangeEndDate}
+                        startDate={expense.startDate}
+                        endDate={expense.endDate}
+                      />
+                    </>
+                  )}
+              </Text>
+            </View>
+            <View>
+              <Text className="text-xl font-black text-black dark:text-white">
+                {moneyFormatter.format(expense.value)}
+              </Text>
+            </View>
           </View>
-          <View></View>
-        </View>
-      ))}
-    </ScrollView>
+        ))}
+      </ScrollView>
+      <Total expensesData={expensesData} paymentsData={paymentsData} />
+    </View>
   );
 }
 
@@ -97,6 +111,36 @@ function Installments({
     <>
       {currentInstallment} / {installmentCount}
     </>
+  );
+}
+
+function Total({
+  expensesData,
+  paymentsData,
+}: {
+  expensesData: (typeof expenses.$inferSelect)[];
+  paymentsData: (typeof payments.$inferSelect)[];
+}) {
+  const { t } = useTranslation();
+  const total = expensesData.reduce(
+    (acc, expense) => (acc += expense.value),
+    0,
+  );
+  const totalPaid = paymentsData.reduce(
+    (acc, payment) => (acc += payment.value),
+    0,
+  );
+  const unpaid = total - totalPaid;
+
+  return (
+    <View>
+      <Text>
+        {t("main.total")}: {total}
+      </Text>
+      <Text>
+        {t("main.unpaid")}: {unpaid}
+      </Text>
+    </View>
   );
 }
 

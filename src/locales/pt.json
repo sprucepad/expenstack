@@ -24,5 +24,11 @@
     "fixed": "Fixo",
     "installments": "Parcelado",
     "installmentCount": "Número de parcelas"
+  },
+  "about": {
+    "title": "Sobre Expenstack",
+    "madeWith": "Feito com ❤️ por sprucepad",
+    "donateMessage": "Expenstack é um aplicativo respeitoso de privacidade e código-aberto. Se gostou do aplicativo, considere uma doação!",
+    "donateButton": "Doar!"
   }
 }

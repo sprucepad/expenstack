@@ -1,10 +1,17 @@
+import { StyledSymbol } from "@/components/ui/symbol";
 import { db } from "@/db/index";
 import "@/global.css";
 import "@/i18n";
 import migrations from "@drizzle/migrations";
 import { PortalHost } from "@rn-primitives/portal";
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import {
+  DarkTheme,
+  DefaultTheme,
+  Link,
+  Stack,
+  ThemeProvider,
+} from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -44,8 +51,22 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen
           name="[dateString]"
-          options={{ title: t("main.title") }}
+          options={{
+            title: t("main.title"),
+            headerRight: () => (
+              <Link href="/about">
+                <StyledSymbol
+                  name={{
+                    android: "info",
+                    ios: "info.circle.fill",
+                  }}
+                  className="text-black dark:text-white"
+                />
+              </Link>
+            ),
+          }}
         />
+        <Stack.Screen name="about" options={{ title: t("about.title") }} />
       </Stack>
       <PortalHost />
     </ThemeProvider>

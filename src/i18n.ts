@@ -7,6 +7,7 @@ import pt from "./locales/pt.json";
 
 export const defaultLocale = Localization.getLocales()[0];
 export const defaultLocaleCode = defaultLocale.languageCode ?? "en";
+/** @lintignore */
 export const defaultCalendar = Localization.getCalendars()[0];
 export const defaultTimeZone = defaultCalendar.timeZone ?? "America/New_York";
 

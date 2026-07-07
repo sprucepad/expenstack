@@ -24,5 +24,11 @@
     "fixed": "Fixed",
     "installments": "Installments",
     "installmentCount": "Installment count"
+  },
+  "about": {
+    "title": "About Expenstack",
+    "madeWith": "Made with ❤️ by sprucepad",
+    "donateMessage": "Expenstack is a free app that respects your privacy. If you like the app, consider a donation!",
+    "donateButton": "Donate!"
   }
 }

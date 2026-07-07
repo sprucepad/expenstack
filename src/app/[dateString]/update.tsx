@@ -1,9 +1,11 @@
 import { useMonth } from "@/components/date-provider";
+import { QueryError } from "@/components/query-error";
 import { Button } from "@/components/ui/button";
 import { db } from "@/db";
 import { expenses, payments } from "@/db/schema";
 import { defaultTimeZone } from "@/i18n";
 import { moneyFormatter } from "@/lib/formatter";
+import { calculateInstallmentCount } from "@/lib/installments";
 import { and, eq, gte, lt } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Checkbox } from "expo-checkbox";
@@ -76,7 +78,7 @@ export default function Update() {
   );
 
   async function create(paid: boolean) {
-    let endDate: Date | undefined;
+    let endDate: Date | undefined = new Date();
     if (isInstallments) {
       const nodeValue = installmentCountRef.current?.nodeValue;
       const installmentCount = nodeValue ? Number.parseInt(nodeValue) : 1;
@@ -86,7 +88,7 @@ export default function Update() {
         .toPlainDate({ day: 1 })
         .toZonedDateTime(defaultTimeZone);
       endDate = new Date(nextMonthInstant.epochMilliseconds);
-    }
+    } else if (isRepeated) endDate = undefined;
 
     const { lastInsertRowId } = await db.insert(expenses).values({
       description: descriptionRef.current?.nodeValue ?? "-",
@@ -97,7 +99,7 @@ export default function Update() {
     if (paid) {
       await db.insert(payments).values({
         expenseId: lastInsertRowId,
-        paidAt: new Date(),
+        paidAt: new Date(rangeStart.epochMilliseconds),
         value: value ?? 0,
       });
     }
@@ -131,18 +133,33 @@ export default function Update() {
         }
       } else endDate = null;
 
-      await db.update(expenses).set({
-        value: value ?? undefined,
-        description: descriptionRef.current?.nodeValue ?? undefined,
-        endDate,
-      });
+      await db
+        .update(expenses)
+        .set({
+          value: value ?? undefined,
+          description: descriptionRef.current?.nodeValue ?? undefined,
+          endDate,
+        })
+        .where(eq(expenses.id, expense.id));
+
+      if (paid != null) {
+        if (paid) {
+          await db.insert(payments).values({
+            value: value ?? 0,
+            expenseId: expense.id,
+            paidAt: new Date(rangeStart.epochMilliseconds),
+          });
+        } else {
+          await db.delete(payments).where(eq(payments.id, payment.id));
+        }
+      }
       router.back();
     }
   }
 
   async function remove() {
-    await db.delete(payments).where(eq(payments.expenseId, expenseId!));
-    await db.delete(expenses).where(eq(expenses.id, expenseId!));
+    await db.delete(payments).where(eq(payments.expenseId, expense.id));
+    await db.delete(expenses).where(eq(expenses.id, expense.id));
     router.back();
   }
 
@@ -266,24 +283,6 @@ export default function Update() {
           </Text>
         </Button>
       </View>
-    </View>
-  );
-}
-
-function calculateInstallmentCount(startDate: Date, endDate: Date) {
-  const start = startDate.toTemporalInstant();
-  const end = endDate.toTemporalInstant();
-
-  return start.until(end).months;
-}
-
-function QueryError({ error }: { error: Error }) {
-  return (
-    <View className="flex items-center justify-center gap-4 p-8">
-      <Text className="text-2xl font-black text-black dark:text-white">
-        An error occurred:
-      </Text>
-      <Text className="text-black dark:text-white">{error.message}</Text>
     </View>
   );
 }

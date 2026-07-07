@@ -4,7 +4,10 @@ import { db } from "@/db";
 import { expenses, payments } from "@/db/schema";
 import { defaultLocaleCode, defaultTimeZone } from "@/i18n";
 import { moneyFormatter } from "@/lib/formatter";
-import { calculateInstallmentCount } from "@/lib/installments";
+import {
+  calculateInstallmentCount,
+  calculateInstallmentNumber,
+} from "@/lib/installments";
 import { cn } from "@/lib/utils";
 import { and, gt, gte, isNull, lt, or } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
@@ -54,7 +57,7 @@ export default function ExpenseListScreen() {
   const expensesList = mergeExpensesAndPayments(expensesData, paymentsData);
 
   return (
-    <View>
+    <View className="flex h-full justify-between">
       <ScrollView>
         {expensesList.map((expense) => (
           <Link
@@ -77,11 +80,12 @@ export default function ExpenseListScreen() {
                 <Text className="text-black dark:text-white">
                   {expense.startDate.toLocaleDateString(defaultLocaleCode)}{" "}
                   {expense.endDate != null &&
-                    expense.endDate !== expense.startDate && (
+                    expense.endDate.getTime() !==
+                      expense.startDate.getTime() && (
                       <>
                         &bull;{" "}
                         <Installments
-                          currentDate={rangeEndDate}
+                          currentDate={rangeStartDate}
                           startDate={expense.startDate}
                           endDate={expense.endDate}
                         />
@@ -112,13 +116,11 @@ function Installments({
   endDate: Date;
   currentDate: Date;
 }) {
-  const installmentCount = Math.max(
-    1,
-    calculateInstallmentCount(startDate, endDate),
-  );
-  const currentInstallment = Math.max(
-    1,
-    calculateInstallmentCount(startDate, currentDate),
+  const installmentCount = calculateInstallmentCount(startDate, endDate);
+  const currentInstallment = calculateInstallmentNumber(
+    startDate,
+    currentDate,
+    installmentCount,
   );
 
   return (
@@ -147,12 +149,12 @@ function Total({
   const unpaid = total - totalPaid;
 
   return (
-    <View>
-      <Text>
-        {t("main.total")}: {total}
+    <View className="bg-gray-200 p-4 dark:bg-gray-700">
+      <Text className="text-black dark:text-white">
+        {t("main.total")}: {moneyFormatter.format(total)}
       </Text>
-      <Text>
-        {t("main.unpaid")}: {unpaid}
+      <Text className="text-black dark:text-white">
+        {t("main.unpaid")}: {moneyFormatter.format(unpaid)}
       </Text>
     </View>
   );

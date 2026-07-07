@@ -31,6 +31,7 @@ export default function AddScreen() {
     const { lastInsertRowId } = await db.insert(expenses).values({
       description: state.description || "-",
       value: state.value ?? 0,
+      startDate: new Date(rangeStart.epochMilliseconds),
       endDate,
     });
 

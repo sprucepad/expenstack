@@ -68,6 +68,7 @@ export default function UpdateScreen() {
 
   return (
     <UpdateContent
+      key={`${expense.id}-${expense.startDate.getTime()}-${expense.endDate?.getTime() ?? "none"}`}
       expense={expense}
       payment={payment}
       rangeStartDate={rangeStartDate}
@@ -85,14 +86,13 @@ function UpdateContent({
   rangeStartDate: Date;
 }) {
   const { t } = useTranslation();
+  const initialInstallmentCount = calculateInstallmentCount(
+    expense.startDate,
+    expense.endDate ?? expense.startDate,
+  );
   const state = useScreen({
     description: expense.description,
-    installmentCount: String(
-      calculateInstallmentCount(
-        expense.startDate,
-        expense.endDate ?? expense.startDate,
-      ),
-    ),
+    installmentCount: String(initialInstallmentCount),
     isInstallments:
       expense.endDate != null &&
       expense.endDate.getTime() !== expense.startDate.getTime(),
@@ -108,25 +108,19 @@ function UpdateContent({
 
     if (state.isRepeated) {
       if (state.isInstallments) {
-        const currentInstallmentCount = calculateInstallmentCount(
-          expense.startDate,
-          expense.endDate ?? expense.startDate,
+        const installmentCount = Number.parseInt(
+          state.installmentCount || "1",
+          10,
         );
+        const nextMonthsInstant = expense.startDate
+          .toTemporalInstant()
+          .toZonedDateTimeISO(defaultTimeZone)
+          .toPlainDate()
+          .with({ day: 1 })
+          .add({ months: installmentCount })
+          .toZonedDateTime(defaultTimeZone);
 
-        const installmentCount = state.installmentCount
-          ? Number.parseInt(state.installmentCount)
-          : currentInstallmentCount;
-
-        if (installmentCount !== currentInstallmentCount) {
-          const currentEndDate = (
-            expense.endDate ?? expense.startDate
-          ).toTemporalInstant();
-          const newEndDate = currentEndDate.add({
-            months: currentInstallmentCount - installmentCount,
-          });
-
-          endDate = new Date(newEndDate.epochMilliseconds);
-        }
+        endDate = new Date(nextMonthsInstant.epochMilliseconds);
       } else endDate = null;
     }
 

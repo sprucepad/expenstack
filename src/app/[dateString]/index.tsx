@@ -6,7 +6,7 @@ import { defaultLocaleCode, defaultTimeZone } from "@/i18n";
 import { moneyFormatter } from "@/lib/formatter";
 import { calculateInstallmentCount } from "@/lib/installments";
 import { cn } from "@/lib/utils";
-import { and, gte, isNull, lt, or } from "drizzle-orm";
+import { and, gt, gte, isNull, lt, or } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Link } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -31,8 +31,8 @@ export default function ExpenseListScreen() {
       .from(expenses)
       .where(
         and(
-          gte(expenses.startDate, rangeStartDate),
-          or(isNull(expenses.endDate), lt(expenses.endDate, rangeEndDate)),
+          lt(expenses.startDate, rangeEndDate),
+          or(isNull(expenses.endDate), gt(expenses.endDate, rangeStartDate)),
         ),
       ),
   );
@@ -112,8 +112,14 @@ function Installments({
   endDate: Date;
   currentDate: Date;
 }) {
-  const installmentCount = calculateInstallmentCount(startDate, endDate);
-  const currentInstallment = calculateInstallmentCount(startDate, currentDate);
+  const installmentCount = Math.max(
+    1,
+    calculateInstallmentCount(startDate, endDate),
+  );
+  const currentInstallment = Math.max(
+    1,
+    calculateInstallmentCount(startDate, currentDate),
+  );
 
   return (
     <>

@@ -7,7 +7,7 @@ import { defaultTimeZone } from "@/i18n";
 import { calculateInstallmentCount } from "@/lib/installments";
 import { and, eq, gte, lt } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
@@ -101,9 +101,11 @@ function UpdateContent({
       expense.endDate.getTime() !== expense.startDate.getTime(),
     value: expense.value || null,
   });
+  const month = useMonth();
 
   async function update(updatePaymentState: boolean) {
-    let endDate: Date | null | undefined;
+    let endDate: Date | null | undefined = state.isRepeated ? undefined : null;
+
     if (state.isRepeated) {
       if (state.isInstallments) {
         const currentInstallmentCount = calculateInstallmentCount(
@@ -126,26 +128,26 @@ function UpdateContent({
           endDate = new Date(newEndDate.epochMilliseconds);
         }
       } else endDate = null;
+    }
 
-      await db
-        .update(expenses)
-        .set({
-          value: state.value ?? undefined,
-          description: state.description || undefined,
-          endDate,
-        })
-        .where(eq(expenses.id, expense.id));
+    await db
+      .update(expenses)
+      .set({
+        value: state.value ?? undefined,
+        description: state.description || undefined,
+        endDate,
+      })
+      .where(eq(expenses.id, expense.id));
 
-      if (updatePaymentState) {
-        if (!payment) {
-          await db.insert(payments).values({
-            value: state.value ?? 0,
-            expenseId: expense.id,
-            paidAt: rangeStartDate,
-          });
-        } else {
-          await db.delete(payments).where(eq(payments.id, payment.id));
-        }
+    if (updatePaymentState) {
+      if (!payment) {
+        await db.insert(payments).values({
+          value: state.value ?? 0,
+          expenseId: expense.id,
+          paidAt: rangeStartDate,
+        });
+      } else {
+        await db.delete(payments).where(eq(payments.id, payment.id));
       }
     }
   }
@@ -159,17 +161,21 @@ function UpdateContent({
     <View className="flex h-full justify-between p-8">
       <Form state={state} />
       <Buttons
+        onComplete={() =>
+          router.replace({
+            pathname: "/[dateString]",
+            params: { dateString: month.asString },
+          })
+        }
         update={{
           fn: () => update(false),
           label: t("update.update"),
         }}
-
         paid={{
           fn: () => update(true),
           label: payment ? t("update.unpaid") : t("update.paid"),
           variant: payment ? "warning" : "primary",
         }}
-
         remove={{
           fn: () => remove(),
           label: t("update.remove"),

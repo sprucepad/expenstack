@@ -3,6 +3,7 @@ import { Buttons, Form, useScreen } from "@/components/details";
 import { db } from "@/db";
 import { expenses, payments } from "@/db/schema";
 import { defaultTimeZone } from "@/i18n";
+import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
@@ -13,13 +14,8 @@ export default function AddScreen() {
   const rangeStart = month.asMonth
     .toPlainDate({ day: 1 })
     .toZonedDateTime(defaultTimeZone);
-  const rangeEnd = month.asMonth
-    .add({ months: 1 })
-    .toPlainDate({ day: 1 })
-    .toZonedDateTime(defaultTimeZone);
-
   async function create(isPaid: boolean) {
-    let endDate: Date | undefined = new Date();
+    let endDate: Date | undefined;
     if (state.isInstallments) {
       const installmentCount = state.installmentCount
         ? Number.parseInt(state.installmentCount)
@@ -51,17 +47,21 @@ export default function AddScreen() {
     <View className="flex h-full justify-between p-8">
       <Form state={state} />
       <Buttons
+        onComplete={() =>
+          router.replace({
+            pathname: "/[dateString]",
+            params: { dateString: month.asString },
+          })
+        }
         update={{
           fn: () => create(false),
           label: t("update.add"),
         }}
-
         paid={{
           fn: () => create(true),
           label: t("update.paid"),
           variant: "primary",
         }}
-
         remove={{
           fn: async () => {},
           label: t("update.remove"),

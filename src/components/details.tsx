@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { moneyFormatter } from "@/lib/formatter";
 import { Checkbox } from "expo-checkbox";
-import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +12,7 @@ export function Buttons({
   update,
   paid,
   remove,
+  onComplete,
 }: {
   update: { label: string; fn: (e: GestureResponderEvent) => Promise<void> };
   paid: {
@@ -21,13 +21,14 @@ export function Buttons({
     variant: React.ComponentProps<typeof Button>["variant"];
   };
   remove: { label: string; fn: (e: GestureResponderEvent) => Promise<void> };
+  onComplete?: () => void;
 }) {
   return (
     <View className="flex gap-4">
       <Button
         onPress={async (e) => {
           await update.fn(e);
-          router.back();
+          onComplete?.();
         }}
       >
         <Text className="text-center text-black uppercase dark:text-white">
@@ -37,7 +38,7 @@ export function Buttons({
       <Button
         onPress={async (e) => {
           await paid.fn(e);
-          router.back();
+          onComplete?.();
         }}
         className="will-change-variable"
         variant={paid.variant}
@@ -50,7 +51,7 @@ export function Buttons({
         variant="destructive"
         onPress={async (e) => {
           await remove.fn(e);
-          router.back();
+          onComplete?.();
         }}
       >
         <Text className="text-center text-black uppercase dark:text-white">
@@ -176,7 +177,7 @@ export function useScreen(
     initialValues.isInstallments ?? false,
   );
   const [installmentCount, setInstallmentCount] = useState(
-    initialValues.installmentCount ?? "0",
+    initialValues.installmentCount ?? "1",
   );
 
   return {

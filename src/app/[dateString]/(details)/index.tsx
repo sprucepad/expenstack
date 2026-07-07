@@ -1,5 +1,5 @@
 import { useMonth } from "@/components/date-provider";
-import { Buttons, Form, useScreen } from "@/components/update";
+import { Buttons, Form, useScreen } from "@/components/details";
 import { db } from "@/db";
 import { expenses, payments } from "@/db/schema";
 import { defaultTimeZone } from "@/i18n";

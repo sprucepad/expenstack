@@ -1,6 +1,6 @@
 import { useMonth } from "@/components/date-provider";
+import { Buttons, Form, useScreen } from "@/components/details";
 import { QueryError } from "@/components/query-error";
-import { Buttons, Form, useScreen } from "@/components/update";
 import { db } from "@/db";
 import { expenses, payments } from "@/db/schema";
 import { defaultTimeZone } from "@/i18n";
@@ -11,8 +11,18 @@ import { useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
-export default function Update() {
+export default function UpdateScreen() {
   const month = useMonth();
+  const rangeStart = month.asMonth
+    .toPlainDate({ day: 1 })
+    .toZonedDateTime(defaultTimeZone);
+  const rangeStartDate = new Date(rangeStart.epochMilliseconds);
+  const rangeEnd = month.asMonth
+    .add({ months: 1 })
+    .toPlainDate({ day: 1 })
+    .toZonedDateTime(defaultTimeZone);
+  const rangeEndDate = new Date(rangeEnd.epochMilliseconds);
+
   const { expenseId: expenseIdAsString } = useLocalSearchParams<{
     expenseId?: string;
   }>();
@@ -32,14 +42,6 @@ export default function Update() {
     [expenseId],
   );
 
-  const rangeStart = month.asMonth
-    .toPlainDate({ day: 1 })
-    .toZonedDateTime(defaultTimeZone);
-  const rangeEnd = month.asMonth
-    .add({ months: 1 })
-    .toPlainDate({ day: 1 })
-    .toZonedDateTime(defaultTimeZone);
-
   const {
     data: [payment],
     error: paymentError,
@@ -51,8 +53,8 @@ export default function Update() {
         expenseId
           ? and(
               eq(payments.expenseId, expenseId),
-              gte(payments.paidAt, new Date(rangeStart.epochMilliseconds)),
-              lt(payments.paidAt, new Date(rangeEnd.epochMilliseconds)),
+              gte(payments.paidAt, rangeStartDate),
+              lt(payments.paidAt, rangeEndDate),
             )
           : undefined,
       )
@@ -60,6 +62,28 @@ export default function Update() {
     [expenseId],
   );
 
+  if (expenseError) return <QueryError error={expenseError} />;
+  if (paymentError) return <QueryError error={paymentError} />;
+  if (!expense) return <QueryError error={new Error("Expense not found")} />;
+
+  return (
+    <UpdateContent
+      expense={expense}
+      payment={payment}
+      rangeStartDate={rangeStartDate}
+    />
+  );
+}
+
+function UpdateContent({
+  expense,
+  payment,
+  rangeStartDate,
+}: {
+  expense: typeof expenses.$inferSelect;
+  payment?: typeof payments.$inferSelect;
+  rangeStartDate: Date;
+}) {
   const { t } = useTranslation();
   const state = useScreen({
     description: expense.description,
@@ -117,7 +141,7 @@ export default function Update() {
           await db.insert(payments).values({
             value: state.value ?? 0,
             expenseId: expense.id,
-            paidAt: new Date(rangeStart.epochMilliseconds),
+            paidAt: rangeStartDate,
           });
         } else {
           await db.delete(payments).where(eq(payments.id, payment.id));
@@ -130,9 +154,6 @@ export default function Update() {
     await db.delete(payments).where(eq(payments.expenseId, expense.id));
     await db.delete(expenses).where(eq(expenses.id, expense.id));
   }
-
-  if (expenseError) return <QueryError error={expenseError} />;
-  if (paymentError) return <QueryError error={paymentError} />;
 
   return (
     <View className="flex h-full justify-between p-8">

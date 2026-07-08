@@ -3,8 +3,4 @@
   "tags": ["-lintignore"],
 
   "babel": true,
-  "ignoreDependencies": [
-    // Expo provides this
-    "babel-preset-expo",
-  ],
 }

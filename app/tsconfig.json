@@ -13,6 +13,8 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "nativewind-env.d.ts"
+    "nativewind-env.d.ts",
+    // for some reason this is necessary
+    "src/env.d.ts"
   ]
 }

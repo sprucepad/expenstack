@@ -1,5 +1,6 @@
 import { useMonth } from "@/components/date-provider";
 import { Buttons, Form, useScreen } from "@/components/details";
+import { Loading } from "@/components/loading";
 import { QueryError } from "@/components/query-error";
 import { db } from "@/db";
 import { expenses, payments } from "@/db/schema";
@@ -8,6 +9,8 @@ import { calculateInstallmentCount } from "@/lib/installments";
 import { and, eq, gte, lt } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { router, useLocalSearchParams } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
@@ -33,6 +36,7 @@ export default function UpdateScreen() {
   const {
     data: [expense],
     error: expenseError,
+    updatedAt: expenseUpdatedAt,
   } = useLiveQuery(
     db
       .select()
@@ -45,6 +49,7 @@ export default function UpdateScreen() {
   const {
     data: [payment],
     error: paymentError,
+    updatedAt: paymentUpdatedAt,
   } = useLiveQuery(
     db
       .select()
@@ -62,8 +67,14 @@ export default function UpdateScreen() {
     [expenseId],
   );
 
+  useEffect(() => {
+    if (!expenseUpdatedAt || !paymentUpdatedAt) return;
+    SplashScreen.hideAsync();
+  }, [expenseUpdatedAt, paymentUpdatedAt]);
+
   if (expenseError) return <QueryError error={expenseError} />;
   if (paymentError) return <QueryError error={paymentError} />;
+  if (!expenseUpdatedAt || !paymentUpdatedAt) return <Loading />;
   if (!expense) return <QueryError error={new Error("Expense not found")} />;
 
   return (
@@ -119,7 +130,7 @@ function UpdateContent({
           .toZonedDateTimeISO(defaultTimeZone)
           .toPlainDate()
           .with({ day: 1 })
-          .add({ months: installmentCount })
+          .add({ months: installmentCount - 1 })
           .toZonedDateTime(defaultTimeZone);
 
         endDate = new Date(nextMonthsInstant.epochMilliseconds);

@@ -24,7 +24,7 @@ export default function AddScreen() {
         : 1;
 
       const nextMonthsInstant = month.asMonth
-        .add({ months: installmentCount })
+        .add({ months: Math.max(0, installmentCount - 1) })
         .toPlainDate({ day: 1 })
         .toZonedDateTime(defaultTimeZone);
       endDate = new Date(nextMonthsInstant.epochMilliseconds);

@@ -30,5 +30,6 @@
     "madeWith": "Feito com ❤️ por sprucepad",
     "donateMessage": "Expenstack é um aplicativo respeitoso de privacidade e código-aberto. Se gostou do aplicativo, considere uma doação!",
     "donateButton": "Doar!"
-  }
+  },
+  "loading": "Carregando..."
 }

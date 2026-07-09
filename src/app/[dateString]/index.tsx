@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 import { and, gte, isNull, lt, or } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Link } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, Text, View } from "react-native";
 
@@ -28,7 +30,11 @@ export default function ExpenseListScreen() {
   const rangeStartDate = new Date(rangeStart.epochMilliseconds);
   const rangeEndDate = new Date(rangeEnd.epochMilliseconds);
 
-  const { data: expensesData, error: expensesError } = useLiveQuery(
+  const {
+    data: expensesData,
+    error: expensesError,
+    updatedAt: expensesUpdatedAt,
+  } = useLiveQuery(
     db
       .select()
       .from(expenses)
@@ -39,7 +45,11 @@ export default function ExpenseListScreen() {
         ),
       ),
   );
-  const { data: paymentsData, error: paymentsError } = useLiveQuery(
+  const {
+    data: paymentsData,
+    error: paymentsError,
+    updatedAt: paymentsUpdatedAt,
+  } = useLiveQuery(
     db
       .select()
       .from(payments)
@@ -50,6 +60,11 @@ export default function ExpenseListScreen() {
         ),
       ),
   );
+
+  useEffect(() => {
+    if (!expensesUpdatedAt || !paymentsUpdatedAt) return;
+    SplashScreen.hideAsync();
+  }, [expensesUpdatedAt, paymentsUpdatedAt]);
 
   if (expensesError) return <QueryError error={expensesError} />;
   if (paymentsError) return <QueryError error={paymentsError} />;

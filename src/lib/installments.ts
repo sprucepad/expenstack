@@ -7,7 +7,7 @@ export function calculateInstallmentCount(startDate: Date, endDate: Date) {
   const endMonth = getMonthBoundary(endDate);
   const monthDifference = getMonthDifference(startMonth, endMonth);
 
-  return Math.max(1, monthDifference);
+  return Math.max(1, monthDifference + 1);
 }
 
 export function calculateInstallmentNumber(

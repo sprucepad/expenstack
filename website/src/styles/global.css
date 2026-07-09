@@ -3,6 +3,7 @@
 @theme inline {
   --color-background: var(--color-gray-900);
   --color-foreground: var(--color-gray-200);
+  --color-accent: var(--color-teal-600);
 
   --font-sans: var(--font-dm-sans);
   --font-heading: var(--font-dm-sans);

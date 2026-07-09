@@ -2,6 +2,8 @@
 import defaultImage from "@/assets/image.png";
 import "@/styles/global.css";
 
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
 import type { HTMLAttributes } from "astro/types";
 import { Font, getImage } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
@@ -51,6 +53,8 @@ const imageURL = new URL(optimizedImage.src, Astro.site);
     <meta property="twitter:card" content="summary_large_image" />
   </head>
   <body>
+    <Header />
     <main {...rest}><slot /></main>
+    <Footer />
   </body>
 </html>

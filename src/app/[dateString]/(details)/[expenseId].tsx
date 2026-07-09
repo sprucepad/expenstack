@@ -104,7 +104,9 @@ function UpdateContent({
   const month = useMonth();
 
   async function update(updatePaymentState: boolean) {
-    let endDate: Date | null | undefined = state.isRepeated ? undefined : null;
+    let endDate: Date | null | undefined = state.isRepeated
+      ? null
+      : expense.startDate;
 
     if (state.isRepeated) {
       if (state.isInstallments) {
@@ -121,7 +123,9 @@ function UpdateContent({
           .toZonedDateTime(defaultTimeZone);
 
         endDate = new Date(nextMonthsInstant.epochMilliseconds);
-      } else endDate = null;
+      } else {
+        endDate = null;
+      }
     }
 
     await db

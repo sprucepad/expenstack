@@ -15,7 +15,9 @@ export default function AddScreen() {
     .toPlainDate({ day: 1 })
     .toZonedDateTime(defaultTimeZone);
   async function create(isPaid: boolean) {
-    let endDate: Date | undefined;
+    let endDate: Date | null | undefined = new Date(
+      rangeStart.epochMilliseconds,
+    );
     if (state.isInstallments) {
       const installmentCount = state.installmentCount
         ? Number.parseInt(state.installmentCount)
@@ -26,7 +28,9 @@ export default function AddScreen() {
         .toPlainDate({ day: 1 })
         .toZonedDateTime(defaultTimeZone);
       endDate = new Date(nextMonthsInstant.epochMilliseconds);
-    } else if (state.isRepeated) endDate = undefined;
+    } else if (state.isRepeated) {
+      endDate = null;
+    }
 
     const { lastInsertRowId } = await db.insert(expenses).values({
       description: state.description || "-",

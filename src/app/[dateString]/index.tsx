@@ -9,7 +9,7 @@ import {
   calculateInstallmentNumber,
 } from "@/lib/installments";
 import { cn } from "@/lib/utils";
-import { and, gt, gte, isNull, lt, or } from "drizzle-orm";
+import { and, gte, isNull, lt, or } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { Link } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -35,7 +35,7 @@ export default function ExpenseListScreen() {
       .where(
         and(
           lt(expenses.startDate, rangeEndDate),
-          or(isNull(expenses.endDate), gt(expenses.endDate, rangeStartDate)),
+          or(isNull(expenses.endDate), gte(expenses.endDate, rangeStartDate)),
         ),
       ),
   );

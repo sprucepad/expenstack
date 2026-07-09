@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--color-gray-900);
+  --color-foreground: var(--color-gray-200);
+
+  --font-sans: var(--font-dm-sans);
+  --font-heading: var(--font-dm-sans);
+}
+
+@layer base {
+  html,
+  body {
+    @apply bg-background text-foreground h-full;
+  }
+}

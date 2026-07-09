@@ -1,5 +1,11 @@
+packages:
+  - "app"
+  - "website"
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - "@astrojs/telemetry@3.3.3"
+  - astro@7.0.7
 overrides:
   lightningcss: "1.30.1"

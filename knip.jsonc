@@ -2,5 +2,12 @@
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
   "tags": ["-lintignore"],
 
-  "babel": true,
+  "workspaces": {
+    "app": {
+      "babel": true,
+    },
+    "website": {
+      "ignoreDependencies": ["tailwindcss"], // it is used
+    },
+  },
 }

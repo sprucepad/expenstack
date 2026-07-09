@@ -1,0 +1,32 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "globalPassThroughEnv": ["ANDROID_HOME"],
+  "ui": "tui",
+  "tasks": {
+    "web": {
+      "persistent": true,
+      "cache": false
+    },
+    "web:build": {
+      "outputs": ["dist/**/*"]
+    },
+    "web:preview": {
+      "persistent": true,
+      "cache": false
+    },
+    "android": {
+      "persistent": true,
+      "cache": false
+    },
+    "ios": {
+      "persistent": true,
+      "cache": false
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "check": {
+      "dependsOn": ["^check"]
+    }
+  }
+}

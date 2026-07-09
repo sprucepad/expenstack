@@ -3,8 +3,13 @@
 pnpm-lock.yaml
 
 # build output
+.astro/
 .expo/
 dist/
 
 # migrations
 drizzle/
+
+# expo
+expo-env.d.ts
+nativewind-env.d.ts

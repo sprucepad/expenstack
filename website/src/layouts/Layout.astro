@@ -1,0 +1,56 @@
+---
+import defaultImage from "@/assets/image.png";
+import "@/styles/global.css";
+
+import type { HTMLAttributes } from "astro/types";
+import { Font, getImage } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
+
+interface Props extends HTMLAttributes<"main"> {
+  title: string;
+  desc: string;
+  image?: ImageMetadata;
+}
+
+const {
+  title,
+  desc,
+  image: unoptimizedImage = defaultImage,
+  ...rest
+} = Astro.props;
+const optimizedImage = await getImage({
+  src: unoptimizedImage,
+  width: 1280,
+  height: 628,
+});
+const imageURL = new URL(optimizedImage.src, Astro.site);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+
+    <ClientRouter />
+    <Font cssVariable="--font-dm-sans" />
+
+    {/* primary */}
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={desc} />
+
+    {/* social */}
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.site} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:image" content={imageURL} />
+    <meta property="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <main {...rest}><slot /></main>
+  </body>
+</html>

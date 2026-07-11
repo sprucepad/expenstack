@@ -172,7 +172,7 @@ function UpdateContent({
       <Buttons
         onComplete={() =>
           router.replace({
-            pathname: "/[dateString]",
+            pathname: "/[dateString]/(home)",
             params: { dateString: month.asString },
           })
         }

@@ -14,6 +14,7 @@ export default function AddScreen() {
   const rangeStart = month.asMonth
     .toPlainDate({ day: 1 })
     .toZonedDateTime(defaultTimeZone);
+
   async function create(isPaid: boolean) {
     let endDate: Date | null | undefined = new Date(
       rangeStart.epochMilliseconds,
@@ -31,18 +32,17 @@ export default function AddScreen() {
     } else if (state.isRepeated) {
       endDate = null;
     }
-
     const { lastInsertRowId } = await db.insert(expenses).values({
       description: state.description || "-",
       value: state.value ?? 0,
-      startDate: new Date(rangeStart.epochMilliseconds),
+      startDate: new Date(),
       endDate,
     });
 
     if (isPaid) {
       await db.insert(payments).values({
         expenseId: lastInsertRowId,
-        paidAt: new Date(rangeStart.epochMilliseconds),
+        paidAt: new Date(),
         value: state.value ?? 0,
       });
     }
@@ -54,7 +54,7 @@ export default function AddScreen() {
       <Buttons
         onComplete={() =>
           router.replace({
-            pathname: "/[dateString]",
+            pathname: "/[dateString]/(home)",
             params: { dateString: month.asString },
           })
         }

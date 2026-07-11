@@ -69,7 +69,11 @@ export default function ExpenseListScreen() {
   if (expensesError) return <QueryError error={expensesError} />;
   if (paymentsError) return <QueryError error={paymentsError} />;
 
-  const expensesList = mergeExpensesAndPayments(expensesData, paymentsData);
+  const expensesList = mergeExpensesAndPayments(
+    expensesData,
+    paymentsData,
+    rangeStart,
+  );
 
   return (
     <View className="flex h-full justify-between">
@@ -178,11 +182,21 @@ function Total({
 function mergeExpensesAndPayments(
   expensesData: (typeof expenses.$inferSelect)[],
   paymentsData: (typeof payments.$inferSelect)[],
+  rangeStart: Temporal.ZonedDateTime,
 ) {
-  return expensesData.map((expense) => ({
-    ...expense,
-    payments: paymentsData.filter(
-      (payment) => payment.expenseId === expense.id,
-    ),
-  }));
+  return expensesData.map((expense) => {
+    const temporalStartDate = expense.startDate
+      .toTemporalInstant()
+      .toZonedDateTimeISO(defaultTimeZone);
+
+    return {
+      ...expense,
+      startDate: new Date(
+        temporalStartDate.with({ month: rangeStart.month }).epochMilliseconds,
+      ),
+      payments: paymentsData.filter(
+        (payment) => payment.expenseId === expense.id,
+      ),
+    };
+  });
 }

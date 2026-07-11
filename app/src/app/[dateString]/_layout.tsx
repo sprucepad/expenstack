@@ -15,7 +15,7 @@ export default function DateLayout() {
         <DatePicker />
       </View>
       <NativeTabs>
-        <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger name="(home)/index">
           <NativeTabs.Trigger.Icon sf="house.fill" md="home" />
           <NativeTabs.Trigger.Label>{t("main.title")}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
@@ -25,7 +25,7 @@ export default function DateLayout() {
             {t("update.tabBar")}
           </NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
-        <NativeTabs.Trigger name="graphs" disabled>
+        <NativeTabs.Trigger name="(graphs)/index" disabled>
           <NativeTabs.Trigger.Icon sf="chart.pie.fill" md="pie_chart" />
           <NativeTabs.Trigger.Label>
             {t("graphs.title")}

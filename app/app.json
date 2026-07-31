@@ -40,7 +40,7 @@
       [
         "expo-plugin-app-name-localization",
         {
-          "locales": {
+          "localizations": {
             "en": "My Expenses (Expenstack)",
             "pt": "Minhas Despesas (Expenstack)"
           }

@@ -53,6 +53,7 @@
     "drizzle-kit": "1.0.0-rc.4",
     "eslint": "^9.39.4",
     "eslint-config-expo": "~57.0.0",
+    "fs-extra": "^11.4.0",
     "postcss": "^8.5.16",
     "tailwindcss": "4.1.16",
     "typescript": "~6.0.3"

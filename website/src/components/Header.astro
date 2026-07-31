@@ -25,7 +25,7 @@ const t = createTranslate(Astro.currentLocale, table);
 <header
   id="topnav"
   transition:persist="topnav"
-  class="bg-foreground text-background fixed inset-4 flex h-16 items-center justify-between rounded-full p-4 transition-[opacity,visibility] data-hidden:invisible data-hidden:opacity-0"
+  class="fixed inset-4 flex h-16 items-center justify-between rounded-full bg-foreground p-4 text-background transition-[opacity,visibility] data-hidden:invisible data-hidden:opacity-0"
 >
   <Link href="/" class="flex items-center gap-4 text-2xl font-black">
     <Favicon width={48} height={48} />
@@ -38,7 +38,7 @@ const t = createTranslate(Astro.currentLocale, table);
   </button>
 
   <nav
-    class="bg-foreground fixed top-24 right-4 translate-x-[125%] transform rounded-lg p-4 transition-transform peer-data-open:translate-x-0 md:static md:translate-x-0 md:transform-none md:p-0"
+    class="fixed top-24 right-4 translate-x-[125%] transform rounded-lg bg-foreground p-4 transition-transform peer-data-open:translate-x-0 md:static md:translate-x-0 md:transform-none md:p-0"
   >
     <ul class="flex flex-col gap-4 md:flex-row">
       <li>

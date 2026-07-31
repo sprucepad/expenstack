@@ -7,7 +7,8 @@
       "babel": true,
     },
     "website": {
-      "ignoreDependencies": ["tailwindcss"], // it is used
+      "ignoreDependencies": ["tailwindcss", "@tailwindcss/typography"], // they are used
+      "entry": ["./src/layouts/MarkdownLayout.astro"], // they are used
     },
   },
 }

@@ -7,11 +7,15 @@ module.exports = {
     // Projects
     {
       files: "app/**/*",
-      tailwindStylesheet: "./app/src/global.css",
+      options: {
+        tailwindStylesheet: "./app/src/global.css",
+      },
     },
     {
       files: "website/**/*",
-      tailwindStylesheet: "./website/src/styles/global.css",
+      options: {
+        tailwindStylesheet: "./website/src/styles/global.css",
+      },
     },
     // Languages
     {

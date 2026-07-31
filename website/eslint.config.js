@@ -13,7 +13,7 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
   tseslint.configs.recommended,
-  globalIgnores([".astro/**/*"]),
+  globalIgnores([".astro/**/*", "dist/**/*"]),
 
   pluginAstro.configs["flat/jsx-a11y-recommended"],
 ]);

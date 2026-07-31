@@ -2,7 +2,24 @@
 import MenuIcon from "@lucide/astro/icons/menu";
 import XIcon from "@lucide/astro/icons/x";
 import Favicon from "@public/favicon.svg";
-import { getRelativeLocaleUrl } from "astro:i18n";
+import Link from "@/components/ui/Link.astro";
+import { createTranslate } from "@/lib/i18n";
+
+const table = {
+  en: {
+    download: "Download",
+    buymeacoffee: "Buy me a Coffee",
+    changelog: "Changelog",
+    privacyPolicy: "Privacy Policy",
+  },
+  pt: {
+    download: "Download",
+    buymeacoffee: "Me Compre um Café",
+    changelog: "Mudanças",
+    privacyPolicy: "Política de Privacidade",
+  },
+};
+const t = createTranslate(Astro.currentLocale, table);
 ---
 
 <header
@@ -10,13 +27,10 @@ import { getRelativeLocaleUrl } from "astro:i18n";
   transition:persist="topnav"
   class="bg-foreground text-background fixed inset-4 flex h-16 items-center justify-between rounded-full p-4 transition-[opacity,visibility] data-hidden:invisible data-hidden:opacity-0"
 >
-  <a
-    href={getRelativeLocaleUrl(Astro.currentLocale!, "/")}
-    class="flex items-center gap-4 text-2xl font-black"
-  >
+  <Link href="/" class="flex items-center gap-4 text-2xl font-black">
     <Favicon width={48} height={48} />
     Expenstack
-  </a>
+  </Link>
 
   <button class="peer group md:hidden">
     <MenuIcon class="group-data-open:hidden" />
@@ -26,71 +40,48 @@ import { getRelativeLocaleUrl } from "astro:i18n";
   <nav
     class="bg-foreground fixed top-24 right-4 translate-x-[125%] transform rounded-lg p-4 transition-transform peer-data-open:translate-x-0 md:static md:translate-x-0 md:transform-none md:p-0"
   >
-    <ul class="te flex flex-col gap-4 md:flex-row">
+    <ul class="flex flex-col gap-4 md:flex-row">
       <li>
-        <a
-          class="block text-end hover:underline"
-          href={getRelativeLocaleUrl(Astro.currentLocale!, "/download")}
-          >Download</a
+        <Link class="block text-end hover:underline" href="/download"
+          >{t("download")}</Link
         >
       </li>
       <li>
-        <a
+        <Link
           class="block text-end hover:underline"
           href="https://www.buymeacoffee.com/sprucepad"
-          class="hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
         >
-          Buy Me a Coffee
-        </a>
+          {t("buymeacoffee")}
+        </Link>
       </li>
       <li>
-        <a
-          class="block text-end hover:underline"
-          href={getRelativeLocaleUrl(Astro.currentLocale!, "/changelog")}
-        >
-          Changelog
-        </a>
+        <Link class="block text-end hover:underline" href="/changelog">
+          {t("changelog")}
+        </Link>
       </li>
       <li>
-        <a
-          class="block text-end hover:underline"
-          href={getRelativeLocaleUrl(Astro.currentLocale!, "/privacy-policy")}
-        >
-          Privacy Policy
-        </a>
+        <Link class="block text-end hover:underline" href="/privacy-policy">
+          {t("privacyPolicy")}
+        </Link>
       </li>
     </ul>
   </nav>
 </header>
 
 <script>
-  let controller: AbortController;
+  const $topNav = document.getElementById("topnav");
+  const $button = $topNav?.querySelector("button");
 
-  document.addEventListener("astro:page-load", () => {
-    controller = new AbortController();
+  $button?.addEventListener("click", () =>
+    $button.toggleAttribute("data-open"),
+  );
 
-    const $topNav = document.getElementById("topnav");
-    const $button = $topNav?.querySelector("button");
+  let previousScrollY = window.scrollY;
+  window.addEventListener("scroll", () => {
+    const diff = window.scrollY - previousScrollY;
+    if (diff < 0) $topNav?.removeAttribute("data-hidden");
+    if (diff > 0) $topNav?.setAttribute("data-hidden", "");
 
-    $button?.addEventListener("click", () =>
-      $button.toggleAttribute("data-open"),
-    );
-
-    let previousScrollY = window.scrollY;
-    window.addEventListener(
-      "scroll",
-      () => {
-        const diff = window.scrollY - previousScrollY;
-        if (diff < 0) $topNav?.removeAttribute("data-hidden");
-        if (diff > 0) $topNav?.setAttribute("data-hidden", "");
-
-        previousScrollY = window.scrollY;
-      },
-      { signal: controller.signal },
-    );
+    previousScrollY = window.scrollY;
   });
-
-  document.addEventListener("astro:before-swap", () => controller.abort());
 </script>

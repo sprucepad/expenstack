@@ -2,6 +2,7 @@
 import MenuIcon from "@lucide/astro/icons/menu";
 import XIcon from "@lucide/astro/icons/x";
 import Favicon from "@public/favicon.svg";
+import { getRelativeLocaleUrl } from "astro:i18n";
 ---
 
 <header
@@ -9,7 +10,10 @@ import Favicon from "@public/favicon.svg";
   transition:persist="topnav"
   class="bg-foreground text-background fixed inset-4 flex h-16 items-center justify-between rounded-full p-4 transition-[opacity,visibility] data-hidden:invisible data-hidden:opacity-0"
 >
-  <a href="/" class="flex items-center gap-4 text-2xl font-black">
+  <a
+    href={getRelativeLocaleUrl(Astro.currentLocale!, "/")}
+    class="flex items-center gap-4 text-2xl font-black"
+  >
     <Favicon width={48} height={48} />
     Expenstack
   </a>
@@ -24,7 +28,11 @@ import Favicon from "@public/favicon.svg";
   >
     <ul class="te flex flex-col gap-4 md:flex-row">
       <li>
-        <a class="block text-end hover:underline" href="/download">Download</a>
+        <a
+          class="block text-end hover:underline"
+          href={getRelativeLocaleUrl(Astro.currentLocale!, "/download")}
+          >Download</a
+        >
       </li>
       <li>
         <a
@@ -38,12 +46,18 @@ import Favicon from "@public/favicon.svg";
         </a>
       </li>
       <li>
-        <a class="block text-end hover:underline" href="/changelog">
+        <a
+          class="block text-end hover:underline"
+          href={getRelativeLocaleUrl(Astro.currentLocale!, "/changelog")}
+        >
           Changelog
         </a>
       </li>
       <li>
-        <a class="block text-end hover:underline" href="/privacy-policy">
+        <a
+          class="block text-end hover:underline"
+          href={getRelativeLocaleUrl(Astro.currentLocale!, "/privacy-policy")}
+        >
           Privacy Policy
         </a>
       </li>

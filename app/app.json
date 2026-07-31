@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "platforms": ["android", "ios"],
     "ios": {
-      "icon": "./assets/expenstack.icon"
+      "icon": "./assets/expenstack.icon",
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -33,7 +36,16 @@
       ],
       "expo-localization",
       "expo-sqlite",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-plugin-app-name-localization",
+        {
+          "locales": {
+            "en": "My Expenses (Expenstack)",
+            "pt": "Minhas Despesas (Expenstack)"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

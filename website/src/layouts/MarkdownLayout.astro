@@ -1,0 +1,16 @@
+---
+import type { MarkdownLayoutProps } from "astro";
+import Layout, { type LayoutProps } from "./Layout.astro";
+
+type Props = MarkdownLayoutProps<LayoutProps>;
+
+const { frontmatter } = Astro.props;
+---
+
+<Layout {...frontmatter}>
+  <article
+    class="prose prose-invert prose-headings:font-heading mx-auto min-h-svh p-4 pt-32"
+  >
+    <slot />
+  </article>
+</Layout>

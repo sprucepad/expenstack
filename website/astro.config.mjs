@@ -9,6 +9,15 @@ export default defineConfig({
   site: "https://expenstack.sprucepad.net/",
   integrations: [sitemap()],
 
+  i18n: {
+    defaultLocale: "pt",
+    locales: ["en", "pt"],
+    routing: {
+      prefixDefaultLocale: true,
+      redirectToDefaultLocale: true,
+    },
+  },
+
   vite: {
     resolve: { tsconfigPaths: true },
     plugins: [tailwindcss()],
